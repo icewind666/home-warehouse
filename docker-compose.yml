@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  app:
+    build: .
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - postgres
+  db:
+    container_name: warehousedb
+    image: postgres:latest
+    volumes:
+    - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: on-failure
+    environment:
+      LC_ALL: C.UTF-8
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: items
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres
+networks:
+  postgres:
+    driver: bridge
