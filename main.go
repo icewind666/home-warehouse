@@ -88,6 +88,29 @@ func main() {
 		return c.JSON(http.StatusOK, item)
 	})
 
+	e.GET("/items", func(c echo.Context) error {
+		rows, err := db.Query("SELECT id,title, description, quantity, expires FROM items")
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		var items []Item
+
+		for rows.Next() {
+			var item Item
+			if err := rows.Scan(&item.ID, &item.Title, &item.Description,
+				&item.Quantity, &item.Expires); err != nil {
+				return err
+			}
+			items = append(items, item)
+		}
+		if err = rows.Err(); err != nil {
+			return err
+		}
+
+		return c.JSON(http.StatusOK, items)
+	})
+
 	e.PUT("/items/:id", func(c echo.Context) error {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
